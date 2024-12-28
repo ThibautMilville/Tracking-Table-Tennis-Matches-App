@@ -1,9 +1,9 @@
 <template>
   <StackLayout class="voice-controls">
-      <Button :text="isListening ? '🎤 Stop Voice Control' : '🎤 Start Voice Control'"
+      <Button :text="isListening ? '🎤 Arrêter le contrôle vocal' : '🎤 Démarrer le contrôle vocal'"
               @tap="$emit('toggle-voice')"
               :class="['voice-button', { 'listening': isListening }]" />
-      <Label v-if="isListening" text="Listening..." class="listening-label" />
+      <Label v-if="isListening" text="En écoute..." class="listening-label" />
   </StackLayout>
 </template>
 

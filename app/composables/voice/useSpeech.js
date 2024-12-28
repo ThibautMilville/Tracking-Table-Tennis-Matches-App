@@ -7,12 +7,12 @@ export const useSpeech = () => {
         try {
             await tts.speak({
                 text,
-                language: 'en',
+                language: 'fr-FR',
                 pitch: 1,
                 speakRate: 1
             });
         } catch (error) {
-            console.error('TTS Error:', error);
+            console.error('Erreur TTS:', error);
         }
     };
 

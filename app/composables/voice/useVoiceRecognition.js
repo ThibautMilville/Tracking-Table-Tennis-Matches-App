@@ -12,7 +12,7 @@ export const useVoiceRecognition = (onCommand) => {
                 await speechRecognition.requestPermission();
                 
                 speechRecognition.startListening({
-                    locale: "en-US",
+                    locale: "fr-FR",
                     onResult: onCommand,
                     returnPartialResults: true
                 });
@@ -22,7 +22,7 @@ export const useVoiceRecognition = (onCommand) => {
             }
             return false;
         } catch (error) {
-            console.error('Speech Recognition Error:', error);
+            console.error('Erreur de reconnaissance vocale:', error);
             return false;
         }
     };
@@ -33,7 +33,7 @@ export const useVoiceRecognition = (onCommand) => {
             isListening.value = false;
             return true;
         } catch (error) {
-            console.error('Speech Recognition Error:', error);
+            console.error('Erreur de reconnaissance vocale:', error);
             return false;
         }
     };

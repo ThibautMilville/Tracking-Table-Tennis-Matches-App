@@ -3,28 +3,45 @@
         <ActionBar title="Ping Pong Scorer" />
         <StackLayout class="match-container">
             <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
-
             <template v-else>
-                <ScoreBoard :player1Name="player1Name" :player2Name="player2Name" :score="score" :setsScore="setsScore"
-                    :currentServer="currentServer" @add-point="addPoint" />
+                <ScoreBoard 
+                    :player1Name="player1Name" 
+                    :player2Name="player2Name" 
+                    :score="score" 
+                    :setsScore="setsScore"
+                    :currentServer="currentServer" 
+                    @add-point="addPoint" 
+                />
 
-                <MatchControls @undo-point="undoPoint" @new-set="newSet" />
+                <MatchControls 
+                    @undo-point="undoPoint" 
+                    @new-set="newSet" 
+                />
 
-                <SetHistory v-if="setsHistory.length > 0" :player1Name="player1Name" :player2Name="player2Name"
-                    :setsHistory="setsHistory" />
+                <SetHistory 
+                    v-if="setsHistory.length > 0" 
+                    :player1Name="player1Name" 
+                    :player2Name="player2Name"
+                    :setsHistory="setsHistory" 
+                />
 
-                <VoiceControls :isListening="isListening" @toggle-voice="toggleVoiceRecognition" />
+                <VoiceControls 
+                    :isListening="isVoiceListening" 
+                    @toggle-voice="toggleVoiceControl" 
+                />
             </template>
         </StackLayout>
     </Page>
 </template>
 
 <script>
+import { ref } from 'nativescript-vue';
 import PlayerSetup from './components/PlayerSetup';
 import ScoreBoard from './components/ScoreBoard';
 import MatchControls from './components/MatchControls';
 import SetHistory from './components/SetHistory';
 import VoiceControls from './components/VoiceControls';
+import { useVoice } from './composables/voice/useVoice';
 
 export default {
     name: 'HomePage',
@@ -45,15 +62,34 @@ export default {
             currentServer: 1,
             setsHistory: [],
             lastPoints: [],
-            isListening: false
+            voiceControl: null
         };
     },
+    computed: {
+        isVoiceListening() {
+            return this.voiceControl?.isListening?.value || false;
+        }
+    },
     methods: {
+        initVoiceControl() {
+            this.voiceControl = useVoice({
+                player1Name: ref(this.player1Name),
+                player2Name: ref(this.player2Name),
+                addPoint: this.addPoint,
+                currentServer: ref(this.currentServer)
+            });
+        },
+        toggleVoiceControl() {
+            if (this.voiceControl) {
+                this.voiceControl.toggleVoiceRecognition();
+            }
+        },
         startMatch({ p1Name, p2Name }) {
             this.player1Name = p1Name;
             this.player2Name = p2Name;
             this.matchStarted = true;
             this.resetScore();
+            this.initVoiceControl();
         },
         addPoint(player) {
             this.lastPoints.push({
@@ -114,9 +150,6 @@ export default {
                 return true;
             }
             return false;
-        },
-        toggleVoiceRecognition() {
-            this.isListening = !this.isListening;
         }
     }
 }

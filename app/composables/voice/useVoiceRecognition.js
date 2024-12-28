@@ -1,5 +1,5 @@
 import { ref } from 'nativescript-vue';
-import { SpeechRecognition } from '@nativescript/speech-recognition';
+import { SpeechRecognition } from 'nativescript-speech-recognition';
 
 export const useVoiceRecognition = (onCommand) => {
     const speechRecognition = new SpeechRecognition();

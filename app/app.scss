@@ -1,21 +1,43 @@
 @import '@nativescript/theme/core';
 @import '@nativescript/theme/default';
 
-// Place any CSS rules you want to apply on both iOS and Android here.
-// This is where the vast majority of your CSS code goes.
+// Global styles
+Page {
+    background-color: #f8f9fa;
+}
 
-// Font icon class
-.fab {
-  font-family: 'Font Awesome 5 Brands', 'fa-brands-400';
-  font-weight: 400;
+ActionBar {
+    background-color: #007bff;
+    color: white;
 }
 
 .fas {
-  font-family: 'Font Awesome 5 Free', 'fa-solid-900';
-  font-weight: 900;
+    font-family: 'Font Awesome 5 Free', 'fa-solid-900';
+    font-weight: 900;
 }
 
-.far {
-  font-family: 'Font Awesome 5 Free', 'fa-regular-400';
-  font-weight: 400;
+// Animations
+.fade {
+    animation-name: fadeIn;
+    animation-duration: 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+// Common components styling
+.btn {
+    border-radius: 8;
+    font-weight: bold;
+    font-size: 16;
+    padding: 12;
+}
+
+.card {
+    background-color: white;
+    border-radius: 10;
+    margin: 10;
+    padding: 15;
 }

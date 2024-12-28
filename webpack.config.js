@@ -1,6 +1,6 @@
-import webpack from "@nativescript/webpack";
+const webpack = require("@nativescript/webpack");
 
-export default (env) => {
+module.exports = (env) => {
   webpack.init(env);
   return webpack.resolveConfig();
 };

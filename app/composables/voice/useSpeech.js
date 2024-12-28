@@ -1,4 +1,4 @@
-import { TextToSpeech } from '@nativescript/text-to-speech';
+import { TextToSpeech } from 'nativescript-texttospeech';
 
 export const useSpeech = () => {
     const tts = new TextToSpeech();

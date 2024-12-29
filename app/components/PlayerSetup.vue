@@ -1,50 +1,24 @@
 <template>
-    <GradientBackground>
-        <StackLayout class="setup-container">
-            <Label text="Ping Pong" class="app-title" />
-            
-            <StackLayout class="form-container">
-                <Label text="Configuration de la partie" class="form-title" />
-                
-                <StylizedInput
-                    :model-value="p1Name"
-                    @update:model-value="p1Name = $event"
-                    label="Joueur 1"
-                    placeholder="Entrez le nom du joueur 1"
-                    returnKeyType="next"
-                />
-                
-                <StylizedInput
-                    :model-value="p2Name"
-                    @update:model-value="p2Name = $event"
-                    label="Joueur 2"
-                    placeholder="Entrez le nom du joueur 2"
-                    returnKeyType="done"
-                />
-                
-                <Button 
-                    text="Commencer la partie" 
-                    @tap="onStartMatch" 
-                    class="start-button"
-                    :isEnabled="isFormValid" 
-                />
-            </StackLayout>
+    <StackLayout class="setup-container">
+        <Label text="Configuration de la partie" class="form-title" />
 
-            <Label text="Version 1.0" class="version-text" />
-        </StackLayout>
-    </GradientBackground>
+        <TextField v-model="p1Name" hint="Entrez le nom du joueur 1" @textChange="onTextChange('p1Name', $event)"
+            class="input" />
+
+        <TextField v-model="p2Name" hint="Entrez le nom du joueur 2" @textChange="onTextChange('p2Name', $event)"
+            class="input" />
+
+        <Button text="Commencer la partie" @tap="onStartMatch" class="start-button" :isEnabled="isFormValid" />
+
+        <Label text="Version 1.0" class="version-text" />
+    </StackLayout>
 </template>
 
 <script>
-import GradientBackground from './ui/GradientBackground';
-import StylizedInput from './ui/StylizedInput';
-import { alert } from '@nativescript/core';
+import { TextField } from '@nativescript/core';
+import { navigateTo } from '@nativescript/core/ui/frame';
 
 export default {
-    components: {
-        GradientBackground,
-        StylizedInput
-    },
     data() {
         return {
             p1Name: '',
@@ -53,11 +27,21 @@ export default {
     },
     computed: {
         isFormValid() {
-            return this.p1Name.trim() && this.p2Name.trim();
+            const isValid = this.p1Name.trim().length > 0 && this.p2Name.trim().length > 0;
+            console.log(`isFormValid called: ${isValid}, p1Name: "${this.p1Name}", p2Name: "${this.p2Name}"`);
+            return isValid;
         }
     },
     methods: {
+        onTextChange(field, event) {
+            if (event.object instanceof TextField) {
+                this[field] = event.object.text;
+                console.log(`${field} changed to: "${this[field]}"`);
+            }
+        },
         onStartMatch() {
+            console.log(`onStartMatch called. p1Name: "${this.p1Name}", p2Name: "${this.p2Name}"`);
+
             if (!this.isFormValid) {
                 alert({
                     title: "Attention",
@@ -66,63 +50,78 @@ export default {
                 });
                 return;
             }
-            this.$emit('start-match', { 
-                p1Name: this.p1Name.trim(), 
-                p2Name: this.p2Name.trim() 
+
+            console.log("Preparing to start the match...");
+
+            this.$emit('start-match', {
+                p1Name: this.p1Name.trim(),
+                p2Name: this.p2Name.trim()
+            });
+
+            console.log("Event 'start-match' emitted");
+
+            this.navigateToGame();
+        },
+        navigateToGame() {
+            console.log("Attempting to navigate to the game page...");
+            navigateTo({
+                moduleName: "components/GameComponent",
+                context: {
+                    p1Name: this.p1Name.trim(),
+                    p2Name: this.p2Name.trim()
+                },
+                transition: {
+                    name: "slide",
+                    duration: 200,
+                    curve: "ease"
+                }
             });
         }
     }
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .setup-container {
     padding: 20;
     height: 100%;
-}
-
-.app-title {
-    color: #ffffff;
-    font-size: 32;
-    font-weight: bold;
-    text-align: center;
-    margin: 40 0;
-    text-transform: uppercase;
-}
-
-.form-container {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 15;
-    padding: 20;
-    margin: 10 0;
+    background-color: #3498db;
 }
 
 .form-title {
     color: #ffffff;
-    font-size: 20;
+    font-size: 24;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 20;
+    margin: 20 0;
+}
+
+.input {
+    color: #333333;
+    font-size: 18;
+    padding: 10;
+    margin: 10 20;
+    background-color: #ffffff;
+    border-radius: 8;
 }
 
 .start-button {
-    margin-top: 20;
-    background-color: #4CAF50;
+    margin: 20;
+    background-color: #2ecc71;
     color: #ffffff;
     font-size: 18;
     font-weight: bold;
     padding: 15 20;
     border-radius: 8;
-    text-transform: uppercase;
+}
 
-    &:disabled {
-        background-color: #cccccc;
-        color: #666666;
-    }
+.start-button:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
 }
 
 .version-text {
-    color: rgba(255, 255, 255, 0.7);
+    color: #ffffff;
     font-size: 14;
     text-align: center;
     margin-top: 20;

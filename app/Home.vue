@@ -4,31 +4,15 @@
         <StackLayout class="match-container">
             <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
             <template v-else>
-                <ScoreBoard 
-                    :player1Name="player1Name" 
-                    :player2Name="player2Name" 
-                    :score="score" 
-                    :setsScore="setsScore"
-                    :currentServer="currentServer" 
-                    @add-point="addPoint" 
-                />
+                <ScoreBoard :player1Name="player1Name" :player2Name="player2Name" :score="score" :setsScore="setsScore"
+                    :currentServer="currentServer" @add-point="addPoint" />
 
-                <MatchControls 
-                    @undo-point="undoPoint" 
-                    @new-set="newSet" 
-                />
+                <GameControls @undo-point="undoPoint" @new-set="newSet" @new-game="newGame" />
 
-                <SetHistory 
-                    v-if="setsHistory.length > 0" 
-                    :player1Name="player1Name" 
-                    :player2Name="player2Name"
-                    :setsHistory="setsHistory" 
-                />
+                <SetHistory v-if="setsHistory.length > 0" :player1Name="player1Name" :player2Name="player2Name"
+                    :setsHistory="setsHistory" />
 
-                <VoiceControls 
-                    :isListening="isVoiceListening" 
-                    @toggle-voice="toggleVoiceControl" 
-                />
+                <VoiceControls :isListening="isVoiceListening" @toggle-voice="toggleVoiceControl" />
             </template>
         </StackLayout>
     </Page>
@@ -39,7 +23,7 @@ import Vue from 'nativescript-vue';
 import { alert } from '@nativescript/core';
 import PlayerSetup from './components/PlayerSetup';
 import ScoreBoard from './components/ScoreBoard';
-import MatchControls from './components/MatchControls';
+import GameControls from './components/GameControls';
 import SetHistory from './components/SetHistory';
 import VoiceControls from './components/VoiceControls';
 import { useVoice } from './composables/voice/useVoice';
@@ -50,7 +34,7 @@ export default {
     components: {
         PlayerSetup,
         ScoreBoard,
-        MatchControls,
+        GameControls,
         SetHistory,
         VoiceControls
     },
@@ -148,14 +132,14 @@ export default {
             }
 
             this.updateService();
-            
+
             if (this.voiceControl) {
                 await this.$nextTick();
                 await this.voiceControl.announceScore();
 
                 if (this.checkSetWinner()) {
                     await this.voiceControl.announceSetWinner();
-                    
+
                     if (this.isMatchFinished()) {
                         this.matchFinished = true;
                         await this.voiceControl.announceMatchWinner();
@@ -171,7 +155,7 @@ export default {
             const lastState = this.lastPoints.pop();
             this.score = { ...lastState.score };
             this.currentServer = lastState.server;
-            
+
             if (this.matchFinished) {
                 this.matchFinished = false;
             }
@@ -214,8 +198,21 @@ export default {
             return false;
         },
         isMatchFinished() {
-            return this.setsScore.player1 === SETS_TO_WIN || 
-                   this.setsScore.player2 === SETS_TO_WIN;
+            return this.setsScore.player1 === SETS_TO_WIN ||
+                this.setsScore.player2 === SETS_TO_WIN;
+        },
+        newGame() {
+            alert({
+                title: "Nouveau jeu",
+                message: "Voulez-vous vraiment commencer un nouveau jeu ?",
+                okButtonText: "Oui",
+                cancelButtonText: "Non"
+            }).then(result => {
+                if (result) {
+                    this.matchStarted = false;
+                    this.resetScore();
+                }
+            });
         }
     }
 }

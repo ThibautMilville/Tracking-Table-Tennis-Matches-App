@@ -1,7 +1,7 @@
 <template>
   <ScrollView>
       <StackLayout class="history-container">
-          <Label text="Match History" class="history-title" />
+          <Label text="Historique des manches" class="history-title" />
           <GridLayout v-for="(set, index) in setsHistory" 
                      :key="index"
                      rows="auto" 
@@ -28,34 +28,37 @@ export default {
 
 <style scoped lang="scss">
 .history-container {
-  margin: 10;
-  padding: 10;
+  margin: 20 10;
+  padding: 15;
   background-color: #f5f5f5;
-  border-radius: 5;
+  border-radius: 8;
 }
 
 .history-title {
   font-size: 18;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 10;
+  margin-bottom: 15;
+  color: #2c3e50;
 }
 
 .set-item {
-  padding: 5;
-  margin: 2;
+  padding: 10;
+  margin: 5 0;
   background-color: white;
-  border-radius: 3;
+  border-radius: 6;
 }
 
 .player-name {
   font-size: 14;
   color: #666;
+  text-align: center;
 }
 
 .set-score {
   font-size: 16;
   font-weight: bold;
-  margin: 0 10;
+  margin: 0 15;
+  color: #2c3e50;
 }
 </style>

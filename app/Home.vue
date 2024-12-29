@@ -1,34 +1,38 @@
 <template>
     <Page>
-        <ActionBar title="Ping Pong Scorer" class="action-bar" />
-        <ScrollView>
-            <StackLayout class="main-container">
+        <ActionBar title="Ping Pong" class="action-bar" />
+        <GridLayout rows="*">
+            <StackLayout row="0" class="main-container">
                 <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
                 <template v-else>
-                    <ScoreBoard 
-                        :player1Name="player1Name"
-                        :player2Name="player2Name"
-                        :score="score"
-                        :setsScore="setsScore"
-                        :currentServer="currentServer"
-                        @add-point="addPoint" />
+                    <ScrollView>
+                        <StackLayout class="game-container">
+                            <ScoreBoard 
+                                :player1Name="player1Name"
+                                :player2Name="player2Name"
+                                :score="score"
+                                :setsScore="setsScore"
+                                :currentServer="currentServer"
+                                @add-point="addPoint" />
 
-                    <GameControls 
-                        @undo-point="undoPoint"
-                        @new-set="newSet"
-                        @new-game="showNewGameDialog" />
+                            <GameControls 
+                                @undo-point="undoPoint"
+                                @new-set="newSet"
+                                @new-game="showNewGameDialog" />
 
-                    <SetHistory v-if="setsHistory.length > 0"
-                        :player1Name="player1Name"
-                        :player2Name="player2Name"
-                        :setsHistory="setsHistory" />
+                            <SetHistory v-if="setsHistory.length > 0"
+                                :player1Name="player1Name"
+                                :player2Name="player2Name"
+                                :setsHistory="setsHistory" />
 
-                    <VoiceControls
-                        :isListening="isVoiceListening"
-                        @toggle-voice="toggleVoiceControl" />
+                            <VoiceControls
+                                :isListening="isVoiceListening"
+                                @toggle-voice="toggleVoiceControl" />
+                        </StackLayout>
+                    </ScrollView>
                 </template>
             </StackLayout>
-        </ScrollView>
+        </GridLayout>
     </Page>
 </template>
 
@@ -249,7 +253,11 @@ export default {
 
 .main-container {
     background: linear-gradient(180deg, #ffffff, $background-light);
-    min-height: 100%;
+    height: 100%;
+}
+
+.game-container {
+    padding-bottom: 20;
 }
 </style>
 

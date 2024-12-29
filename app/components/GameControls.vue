@@ -1,12 +1,12 @@
 <template>
   <StackLayout class="controls-container">
-      <Button text="↩ Annuler le point" 
+      <Button text="↩️ Annuler le point" 
               @tap="$emit('undo-point')" 
               class="control-button undo-button" />
-      <Button text="Nouveau set" 
+      <Button text="➕ Nouveau set" 
               @tap="$emit('new-set')" 
               class="control-button new-set-button" />
-      <Button text="Nouveau jeu" 
+      <Button text="➕ Nouveau jeu" 
               @tap="$emit('new-game')" 
               class="control-button new-game-button" />
   </StackLayout>

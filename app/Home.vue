@@ -1,6 +1,10 @@
 <template>
     <Page>
-        <ActionBar title="Ping Pong" class="action-bar" />
+        <ActionBar class="action-bar">
+            <StackLayout orientation="horizontal" horizontalAlignment="center">
+                <Label text="Ping Pong" class="action-bar-title" />
+            </StackLayout>
+        </ActionBar>
         <GridLayout rows="*">
             <StackLayout row="0" class="main-container">
                 <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
@@ -249,6 +253,13 @@ export default {
 .action-bar {
     background: $primary-gradient;
     color: #ffffff;
+}
+
+.action-bar-title {
+    color: #ffffff;
+    font-size: 20;
+    font-weight: bold;
+    text-align: center;
 }
 
 .main-container {

@@ -1,18 +1,16 @@
 <template>
-  <ScrollView>
-      <StackLayout class="history-container">
-          <Label text="Historique des manches" class="history-title" />
-          <GridLayout v-for="(set, index) in setsHistory" 
-                     :key="index"
-                     rows="auto" 
-                     columns="*, auto, *"
-                     class="set-item">
-              <Label :text="player1Name" col="0" class="player-name" />
-              <Label :text="`${set.player1} - ${set.player2}`" col="1" class="set-score" />
-              <Label :text="player2Name" col="2" class="player-name" />
-          </GridLayout>
-      </StackLayout>
-  </ScrollView>
+  <StackLayout class="history-container">
+      <Label text="Historique des sets" class="history-title" />
+      <GridLayout v-for="(set, index) in setsHistory" 
+                 :key="index"
+                 rows="auto" 
+                 columns="*, auto, *"
+                 class="set-item">
+          <Label :text="player1Name" col="0" class="player-name" />
+          <Label :text="`${set.player1} - ${set.player2}`" col="1" class="set-score" />
+          <Label :text="player2Name" col="2" class="player-name" />
+      </GridLayout>
+  </StackLayout>
 </template>
 
 <script>
@@ -60,5 +58,6 @@ export default {
   font-weight: bold;
   margin: 0 15;
   color: #2c3e50;
+  text-align: center;
 }
 </style>

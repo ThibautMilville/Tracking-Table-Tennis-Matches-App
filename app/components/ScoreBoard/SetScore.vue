@@ -1,10 +1,10 @@
 <template>
     <StackLayout class="set-score-container">
         <Label text="Sets" class="set-label" />
-        <GridLayout rows="auto" columns="auto, auto, auto" class="sets-display">
-            <Label :text="player1Sets" col="0" class="set-number" />
+        <GridLayout rows="auto" columns="*, auto, *" class="sets-display">
+            <Label :text="player1Sets" col="0" class="set-number text-right" />
             <Label text="-" col="1" class="set-separator" />
-            <Label :text="player2Sets" col="2" class="set-number" />
+            <Label :text="player2Sets" col="2" class="set-number text-left" />
         </GridLayout>
     </StackLayout>
 </template>
@@ -42,8 +42,15 @@ export default {
     color: #ffffff;
     font-size: 32;
     font-weight: bold;
-    text-align: center;
     padding: 0 10;
+    
+    &.text-right {
+        text-align: right;
+    }
+    
+    &.text-left {
+        text-align: left;
+    }
 }
 
 .set-separator {
@@ -51,5 +58,6 @@ export default {
     font-size: 32;
     text-align: center;
     opacity: 0.8;
+    padding: 0 10;
 }
 </style>

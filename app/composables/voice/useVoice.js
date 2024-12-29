@@ -30,11 +30,11 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, sc
                 p2Name
             );
 
-            const setPointAnnouncement = announcements.announceSetPoint(
+            const setPointAnnouncement = !matchPointAnnouncement ? announcements.announceSetPoint(
                 currentScore,
                 p1Name,
                 p2Name
-            );
+            ) : null;
 
             const fullAnnouncement = [
                 scoreAnnouncement,

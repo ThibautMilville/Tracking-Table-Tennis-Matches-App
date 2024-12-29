@@ -10,8 +10,9 @@ export const useSpeech = () => {
             const options = {
                 text,
                 locale: 'fr-FR',
-                pitch: 1.0,
-                speakRate: 1.0
+                pitch: 1.1,
+                speakRate: 1.2,
+                volume: 1.0
             };
             
             await tts.speak(options);

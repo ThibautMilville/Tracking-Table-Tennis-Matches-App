@@ -1,71 +1,51 @@
 import { useSpeech } from './useSpeech';
 import { useVoiceRecognition } from './useVoiceRecognition';
+import { findPlayerInCommand } from './useVoiceUtils';
+import { logger } from './useLogger';
 import { alert } from '@nativescript/core';
 
 export const useVoice = ({ player1Name, player2Name, addPoint, currentServer }) => {
-    console.log('useVoice initialisé');
     const { speak } = useSpeech();
-
-    const processVoiceCommand = (result) => {
-        console.log('Commande vocale reçue:', result);
-
-        if (!result || !result.text) {
-            console.log('Résultat invalide');
-            return;
-        }
-        
-        if (!result.finished) {
-            console.log('Résultat partiel, en attente du résultat final');
-            return;
-        }
+    
+    const announceServer = async () => {
+        const serverName = currentServer.value === 1 ? player1Name.value : player2Name.value;
+        await speak(`Service à ${serverName}`);
+    };
+    
+    const processVoiceCommand = async (result) => {
+        if (!result?.text || !result.finished) return;
 
         const command = result.text.toLowerCase();
-        console.log('Commande traitée:', command);
-
+        logger.info(`Commande reçue: ${command}`);
+        
         if (command.includes('point pour') || command.includes('point à')) {
-            const p1NameLower = player1Name.value.toLowerCase();
-            const p2NameLower = player2Name.value.toLowerCase();
+            const playerNumber = findPlayerInCommand(
+                command, 
+                player1Name.value, 
+                player2Name.value
+            );
 
-            console.log('Noms des joueurs:', p1NameLower, p2NameLower);
-
-            if (command.includes(p1NameLower)) {
-                console.log('Point pour joueur 1');
-                addPoint(1);
-                speak(`Point pour ${player1Name.value}`);
-            } else if (command.includes(p2NameLower)) {
-                console.log('Point pour joueur 2');
-                addPoint(2);
-                speak(`Point pour ${player2Name.value}`);
+            if (playerNumber) {
+                addPoint(playerNumber);
+                await speak(`Point pour ${playerNumber === 1 ? player1Name.value : player2Name.value}`);
+                await announceServer();
             } else {
-                console.log('Joueur non reconnu dans la commande');
+                await speak('Joueur non reconnu');
             }
-        } else {
-            console.log('Commande non reconnue');
         }
     };
 
     const { isListening, startListening, stopListening } = useVoiceRecognition(processVoiceCommand);
 
-    const announceService = () => {
-        const serverName = currentServer.value === 1 ? player1Name.value : player2Name.value;
-        speak(`Service pour ${serverName}`);
-    };
-
     const toggleVoiceRecognition = async () => {
-        console.log('Toggle voice recognition appelé, état actuel:', isListening.value);
         try {
             if (isListening.value) {
                 await stopListening();
-                console.log('Arrêt de l\'écoute réussi');
             } else {
-                const started = await startListening();
-                console.log('Démarrage de l\'écoute:', started ? 'réussi' : 'échoué');
-                if (started) {
-                    speak('Reconnaissance vocale activée');
-                }
+                await startListening();
             }
         } catch (error) {
-            console.error('Erreur lors du toggle de la reconnaissance vocale:', error);
+            logger.error('Erreur de reconnaissance vocale:', error);
             alert({
                 title: "Erreur",
                 message: "Erreur de reconnaissance vocale: " + error.message,
@@ -76,7 +56,6 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer }) 
 
     return {
         isListening,
-        toggleVoiceRecognition,
-        announceService
+        toggleVoiceRecognition
     };
 };

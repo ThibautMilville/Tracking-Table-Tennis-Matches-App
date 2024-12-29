@@ -1,40 +1,74 @@
 import Vue from 'nativescript-vue';
 import { SpeechRecognition } from 'nativescript-speech-recognition';
+import { logger } from './useLogger';
+
+const RESTART_DELAY = 1000;
+const MAX_RECOGNITION_TIME = 10000;
 
 export const useVoiceRecognition = (onCommand) => {
     const speechRecognition = new SpeechRecognition();
     const isListening = Vue.observable({ value: false });
     let recognitionInstance = null;
+    let shouldContinueListening = false;
+    let recognitionTimer = null;
 
-    const startListening = async () => {
+    const clearRecognitionTimer = () => {
+        if (recognitionTimer) {
+            clearTimeout(recognitionTimer);
+            recognitionTimer = null;
+        }
+    };
+
+    const startListeningInstance = async () => {
         try {
-            console.log('Vérification de la disponibilité...');
-            const available = await speechRecognition.available();
+            clearRecognitionTimer();
 
-            if (!available) {
-                throw new Error('La reconnaissance vocale n\'est pas disponible sur cet appareil');
-            }
-
-            console.log('Demande de permission...');
-            await speechRecognition.requestPermission();
-
-            if (recognitionInstance) {
-                console.log('Une instance existe déjà, arrêt...');
-                await stopListening();
-            }
-
-            console.log('Démarrage de l\'écoute...');
             recognitionInstance = await speechRecognition.startListening({
                 locale: "fr-FR",
-                onResult: onCommand,
+                onResult: async (result) => {
+                    try {
+                        await onCommand(result);
+                    } finally {
+                        if (shouldContinueListening && result.finished) {
+                            await restartListening();
+                        }
+                    }
+                },
                 returnPartialResults: true
             });
 
             isListening.value = true;
-            console.log('Écoute démarrée avec succès');
+
+            recognitionTimer = setTimeout(() => {
+                restartListening();
+            }, MAX_RECOGNITION_TIME);
+
+        } catch (error) {
+            logger.error('Erreur de démarrage:', error);
+            if (shouldContinueListening) {
+                setTimeout(() => restartListening(), RESTART_DELAY);
+            }
+        }
+    };
+
+    const startListening = async () => {
+        try {
+            const available = await speechRecognition.available();
+            if (!available) {
+                throw new Error('La reconnaissance vocale n\'est pas disponible');
+            }
+
+            await speechRecognition.requestPermission();
+
+            if (recognitionInstance) {
+                await stopListening();
+            }
+
+            shouldContinueListening = true;
+            await startListeningInstance();
+            logger.info('Reconnaissance vocale démarrée');
             return true;
         } catch (error) {
-            console.error('Erreur au démarrage:', error);
             isListening.value = false;
             throw error;
         }
@@ -42,21 +76,40 @@ export const useVoiceRecognition = (onCommand) => {
 
     const stopListening = async () => {
         try {
-            console.log('Arrêt de l\'écoute...');
+            shouldContinueListening = false;
+            clearRecognitionTimer();
+
             if (recognitionInstance) {
                 await speechRecognition.stopListening();
                 recognitionInstance = null;
             }
+
             isListening.value = false;
-            console.log('Arrêt réussi');
+            logger.info('Reconnaissance vocale arrêtée');
             return true;
         } catch (error) {
-            console.error('Erreur lors de l\'arrêt:', error);
             isListening.value = false;
             if (error.message === 'Not running') {
                 return true;
             }
             throw error;
+        }
+    };
+
+    const restartListening = async () => {
+        if (!shouldContinueListening) return;
+
+        try {
+            if (recognitionInstance) {
+                await speechRecognition.stopListening();
+                recognitionInstance = null;
+            }
+            await startListeningInstance();
+        } catch (error) {
+            logger.error('Erreur de redémarrage:', error);
+            if (shouldContinueListening) {
+                setTimeout(() => restartListening(), RESTART_DELAY);
+            }
         }
     };
 

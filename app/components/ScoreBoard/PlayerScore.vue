@@ -2,7 +2,7 @@
     <StackLayout class="player-container" :class="{ 'serving': isServing }" @tap="$emit('score')">
         <Label :text="playerName" class="player-name" />
         <Label :text="score" class="score-value" />
-        <Label v-if="isServing" text="Au service" class="service-indicator" />
+        <Label v-if="isServing" text="Service" class="service-indicator" />
     </StackLayout>
 </template>
 

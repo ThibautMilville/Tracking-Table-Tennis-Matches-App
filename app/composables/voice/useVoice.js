@@ -1,12 +1,13 @@
 import { useSpeech } from './useSpeech';
 import { useVoiceRecognition } from './useVoiceRecognition';
 import { findPlayerInCommand } from './useVoiceUtils';
-import { createScoreAnnouncement } from './useVoiceAnnouncement';
+import { useMatchAnnouncements } from '../match/useMatchAnnouncements';
 import { logger } from './useLogger';
 import { alert } from '@nativescript/core';
 
-export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, score }) => {
+export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, score, setsScore }) => {
     const { speak } = useSpeech();
+    const announcements = useMatchAnnouncements(speak);
     
     const announceScore = async () => {
         try {
@@ -15,14 +16,62 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, sc
             const currentScore = score.value;
             const server = currentServer.value;
 
-            const scoreAnnounce = createScoreAnnouncement(currentScore, p1Name, p2Name);
-            
-            const serverName = server === 1 ? p1Name : p2Name;
-            const fullAnnouncement = `${scoreAnnounce}, Service à ${serverName}`;
+            const scoreAnnouncement = announcements.announceScore(
+                currentScore, 
+                p1Name, 
+                p2Name, 
+                server
+            );
+
+            const matchPointAnnouncement = announcements.announceMatchPoint(
+                setsScore.value,
+                currentScore,
+                p1Name,
+                p2Name
+            );
+
+            const setPointAnnouncement = announcements.announceSetPoint(
+                currentScore,
+                p1Name,
+                p2Name
+            );
+
+            const fullAnnouncement = [
+                scoreAnnouncement,
+                matchPointAnnouncement,
+                setPointAnnouncement
+            ].filter(Boolean).join('. ');
 
             await speak(fullAnnouncement);
         } catch (error) {
             logger.error('Erreur lors de l\'annonce:', error);
+        }
+    };
+
+    const announceSetWinner = async () => {
+        try {
+            const announcement = announcements.announceSetWinner(
+                score.value,
+                player1Name.value,
+                player2Name.value,
+                setsScore.value
+            );
+            await speak(announcement);
+        } catch (error) {
+            logger.error('Erreur lors de l\'annonce du gagnant du set:', error);
+        }
+    };
+
+    const announceMatchWinner = async () => {
+        try {
+            const announcement = announcements.announceMatchWinner(
+                setsScore.value,
+                player1Name.value,
+                player2Name.value
+            );
+            await speak(announcement);
+        } catch (error) {
+            logger.error('Erreur lors de l\'annonce du gagnant du match:', error);
         }
     };
     
@@ -70,6 +119,8 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, sc
     return {
         isListening,
         toggleVoiceRecognition,
-        announceScore
+        announceScore,
+        announceSetWinner,
+        announceMatchWinner
     };
 };

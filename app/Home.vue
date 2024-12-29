@@ -43,6 +43,7 @@ import MatchControls from './components/MatchControls';
 import SetHistory from './components/SetHistory';
 import VoiceControls from './components/VoiceControls';
 import { useVoice } from './composables/voice/useVoice';
+import { SETS_TO_WIN, POINTS_TO_WIN, MIN_DIFFERENCE } from './composables/match/matchConstants';
 
 export default {
     name: 'HomePage',
@@ -56,6 +57,7 @@ export default {
     data() {
         return {
             matchStarted: false,
+            matchFinished: false,
             player1Name: 'Player 1',
             player2Name: 'Player 2',
             score: { player1: 0, player2: 0 },
@@ -63,8 +65,7 @@ export default {
             currentServer: 1,
             setsHistory: [],
             lastPoints: [],
-            voiceControl: null,
-            serverRef: Vue.observable({ value: 1 })
+            voiceControl: null
         };
     },
     computed: {
@@ -72,21 +73,29 @@ export default {
             return this.voiceControl?.isListening?.value || false;
         }
     },
-    watch: {
-        currentServer(newValue) {
-            this.serverRef.value = newValue;
-        }
-    },
     methods: {
         initVoiceControl() {
             console.log('Initialisation du contrôle vocal');
             try {
+                const serverRef = Vue.observable({ value: this.currentServer });
+                const scoreRef = Vue.observable({ value: this.score });
+                const player1NameRef = Vue.observable({ value: this.player1Name });
+                const player2NameRef = Vue.observable({ value: this.player2Name });
+                const setsScoreRef = Vue.observable({ value: this.setsScore });
+
+                this.$watch('currentServer', (newVal) => serverRef.value = newVal);
+                this.$watch('score', (newVal) => Object.assign(scoreRef.value, newVal), { deep: true });
+                this.$watch('player1Name', (newVal) => player1NameRef.value = newVal);
+                this.$watch('player2Name', (newVal) => player2NameRef.value = newVal);
+                this.$watch('setsScore', (newVal) => Object.assign(setsScoreRef.value, newVal), { deep: true });
+
                 this.voiceControl = useVoice({
-                    player1Name: Vue.observable({ value: this.player1Name }),
-                    player2Name: Vue.observable({ value: this.player2Name }),
+                    player1Name: player1NameRef,
+                    player2Name: player2NameRef,
                     addPoint: this.addPoint,
-                    currentServer: Vue.observable({ value: this.currentServer }),
-                    score: Vue.observable({ value: this.score }) // Ajout du score
+                    currentServer: serverRef,
+                    score: scoreRef,
+                    setsScore: setsScoreRef
                 });
                 console.log('Contrôle vocal initialisé');
             } catch (error) {
@@ -99,13 +108,10 @@ export default {
             }
         },
         async toggleVoiceControl() {
-            console.log('Toggle voice control appelé');
             try {
                 if (this.voiceControl) {
                     await this.voiceControl.toggleVoiceRecognition();
-                    console.log('État après toggle:', this.isVoiceListening);
                 } else {
-                    console.error('voiceControl non initialisé');
                     alert({
                         title: "Erreur",
                         message: "Le contrôle vocal n'est pas initialisé",
@@ -113,7 +119,6 @@ export default {
                     });
                 }
             } catch (error) {
-                console.error('Erreur lors du toggle:', error);
                 alert({
                     title: "Erreur",
                     message: "Erreur lors de l'activation/désactivation: " + error.message,
@@ -128,7 +133,9 @@ export default {
             this.resetScore();
             this.initVoiceControl();
         },
-        addPoint(player) {
+        async addPoint(player) {
+            if (this.matchFinished) return;
+
             this.lastPoints.push({
                 score: { ...this.score },
                 server: this.currentServer
@@ -143,11 +150,19 @@ export default {
             this.updateService();
             
             if (this.voiceControl) {
-                this.voiceControl.announceScore();
-            }
+                await this.$nextTick();
+                await this.voiceControl.announceScore();
 
-            if (this.checkSetWinner()) {
-                this.newSet();
+                if (this.checkSetWinner()) {
+                    await this.voiceControl.announceSetWinner();
+                    
+                    if (this.isMatchFinished()) {
+                        this.matchFinished = true;
+                        await this.voiceControl.announceMatchWinner();
+                    } else {
+                        this.newSet();
+                    }
+                }
             }
         },
         undoPoint() {
@@ -156,6 +171,10 @@ export default {
             const lastState = this.lastPoints.pop();
             this.score = { ...lastState.score };
             this.currentServer = lastState.server;
+            
+            if (this.matchFinished) {
+                this.matchFinished = false;
+            }
         },
         newSet() {
             this.score = { player1: 0, player2: 0 };
@@ -166,6 +185,7 @@ export default {
             this.newSet();
             this.setsScore = { player1: 0, player2: 0 };
             this.setsHistory = [];
+            this.matchFinished = false;
         },
         updateService() {
             const totalPoints = this.score.player1 + this.score.player2;
@@ -180,7 +200,7 @@ export default {
             const score2 = this.score.player2;
             const diff = Math.abs(score1 - score2);
 
-            if ((score1 >= 11 || score2 >= 11) && diff >= 2) {
+            if ((score1 >= POINTS_TO_WIN || score2 >= POINTS_TO_WIN) && diff >= MIN_DIFFERENCE) {
                 this.setsHistory.push({ ...this.score });
 
                 if (score1 > score2) {
@@ -192,6 +212,10 @@ export default {
                 return true;
             }
             return false;
+        },
+        isMatchFinished() {
+            return this.setsScore.player1 === SETS_TO_WIN || 
+                   this.setsScore.player2 === SETS_TO_WIN;
         }
     }
 }

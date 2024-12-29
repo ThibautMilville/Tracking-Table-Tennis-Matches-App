@@ -1,0 +1,65 @@
+.modern-dialog {
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  border-radius: 16;
+  box-shadow: 0 4 15 rgba(0, 0, 0, 0.1);
+  padding: 24;
+}
+.modern-dialog .title {
+  color: #2c3e50;
+  font-size: 24;
+  font-weight: bold;
+  margin-bottom: 16;
+  text-align: center;
+}
+.modern-dialog .message {
+  color: #34495e;
+  font-size: 18;
+  margin: 16 0;
+  text-align: center;
+  line-height: 1.4;
+}
+.modern-dialog .btn {
+  margin: 8;
+  padding: 16;
+  border-radius: 12;
+  font-size: 16;
+  font-weight: 600;
+  transform: scale(1);
+  animation: buttonPop 0.3s ease-out;
+}
+.modern-dialog .btn-primary {
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  color: #ffffff;
+}
+.modern-dialog .btn-primary:pressed {
+  background: linear-gradient(145deg, #2980b9, #2472a4);
+  transform: scale(0.98);
+}
+.modern-dialog .btn-secondary {
+  background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+  color: #ffffff;
+}
+.modern-dialog .btn-secondary:pressed {
+  background: linear-gradient(145deg, #7f8c8d, #6b7677);
+  transform: scale(0.98);
+}
+
+@keyframes buttonPop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.new-game-dialog .title {
+  color: #2c3e50;
+}
+.new-game-dialog .message {
+  color: #34495e;
+}/*# sourceMappingURL=app.css.map */

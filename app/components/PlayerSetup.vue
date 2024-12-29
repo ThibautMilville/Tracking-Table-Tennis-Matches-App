@@ -27,21 +27,16 @@ export default {
     },
     computed: {
         isFormValid() {
-            const isValid = this.p1Name.trim().length > 0 && this.p2Name.trim().length > 0;
-            console.log(`isFormValid called: ${isValid}, p1Name: "${this.p1Name}", p2Name: "${this.p2Name}"`);
-            return isValid;
+            return this.p1Name.trim().length > 0 && this.p2Name.trim().length > 0;
         }
     },
     methods: {
         onTextChange(field, event) {
             if (event.object instanceof TextField) {
                 this[field] = event.object.text;
-                console.log(`${field} changed to: "${this[field]}"`);
             }
         },
         onStartMatch() {
-            console.log(`onStartMatch called. p1Name: "${this.p1Name}", p2Name: "${this.p2Name}"`);
-
             if (!this.isFormValid) {
                 alert({
                     title: "Attention",
@@ -51,19 +46,14 @@ export default {
                 return;
             }
 
-            console.log("Preparing to start the match...");
-
             this.$emit('start-match', {
                 p1Name: this.p1Name.trim(),
                 p2Name: this.p2Name.trim()
             });
 
-            console.log("Event 'start-match' emitted");
-
             this.navigateToGame();
         },
         navigateToGame() {
-            console.log("Attempting to navigate to the game page...");
             navigateTo({
                 moduleName: "components/GameComponent",
                 context: {

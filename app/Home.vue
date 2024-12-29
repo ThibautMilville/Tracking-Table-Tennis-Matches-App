@@ -1,32 +1,46 @@
 <template>
     <Page>
-        <ActionBar title="Ping Pong Scorer" />
-        <StackLayout class="match-container">
-            <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
-            <template v-else>
-                <ScoreBoard :player1Name="player1Name" :player2Name="player2Name" :score="score" :setsScore="setsScore"
-                    :currentServer="currentServer" @add-point="addPoint" />
+        <ActionBar title="Ping Pong Scorer" class="action-bar" />
+        <ScrollView>
+            <StackLayout class="main-container">
+                <PlayerSetup v-if="!matchStarted" @start-match="startMatch" />
+                <template v-else>
+                    <ScoreBoard 
+                        :player1Name="player1Name"
+                        :player2Name="player2Name"
+                        :score="score"
+                        :setsScore="setsScore"
+                        :currentServer="currentServer"
+                        @add-point="addPoint" />
 
-                <GameControls @undo-point="undoPoint" @new-set="newSet" @new-game="newGame" />
+                    <GameControls 
+                        @undo-point="undoPoint"
+                        @new-set="newSet"
+                        @new-game="showNewGameDialog" />
 
-                <SetHistory v-if="setsHistory.length > 0" :player1Name="player1Name" :player2Name="player2Name"
-                    :setsHistory="setsHistory" />
+                    <SetHistory v-if="setsHistory.length > 0"
+                        :player1Name="player1Name"
+                        :player2Name="player2Name"
+                        :setsHistory="setsHistory" />
 
-                <VoiceControls :isListening="isVoiceListening" @toggle-voice="toggleVoiceControl" />
-            </template>
-        </StackLayout>
+                    <VoiceControls
+                        :isListening="isVoiceListening"
+                        @toggle-voice="toggleVoiceControl" />
+                </template>
+            </StackLayout>
+        </ScrollView>
     </Page>
 </template>
 
 <script>
 import Vue from 'nativescript-vue';
-import { alert } from '@nativescript/core';
 import PlayerSetup from './components/PlayerSetup';
-import ScoreBoard from './components/ScoreBoard';
+import ScoreBoard from './components/ScoreBoard/ScoreBoard.vue';
 import GameControls from './components/GameControls';
 import SetHistory from './components/SetHistory';
 import VoiceControls from './components/VoiceControls';
 import { useVoice } from './composables/voice/useVoice';
+import { useDialog } from './composables/dialog/useDialog';
 import { SETS_TO_WIN, POINTS_TO_WIN, MIN_DIFFERENCE } from './composables/match/matchConstants';
 
 export default {
@@ -201,25 +215,82 @@ export default {
             return this.setsScore.player1 === SETS_TO_WIN ||
                 this.setsScore.player2 === SETS_TO_WIN;
         },
-        newGame() {
-            alert({
-                title: "Nouveau jeu",
-                message: "Voulez-vous vraiment commencer un nouveau jeu ?",
-                okButtonText: "Oui",
-                cancelButtonText: "Non"
-            }).then(result => {
+        showNewGameDialog() {
+            const dialog = useDialog();
+            dialog.showNewGameDialog().then(result => {
                 if (result) {
-                    this.matchStarted = false;
-                    this.resetScore();
+                    this.startNewGame();
                 }
             });
+        },
+        startNewGame() {
+            if (this.voiceControl && this.isVoiceListening) {
+                this.voiceControl.toggleVoiceRecognition();
+            }
+
+            this.matchStarted = false;
+            this.matchFinished = false;
+            this.player1Name = 'Player 1';
+            this.player2Name = 'Player 2';
+            this.resetScore();
+            this.voiceControl = null;
         }
     }
 }
 </script>
 
 <style scoped lang="scss">
+@import './styles/themes.scss';
+
+.action-bar {
+    background: $primary-gradient;
+    color: #ffffff;
+}
+
+.main-container {
+    background: linear-gradient(180deg, #ffffff, $background-light);
+    min-height: 100%;
+}
+</style>
+
+<style scoped lang="scss">
 .match-container {
     padding: 20;
+}
+
+.new-game-dialog {
+    background-color: #ffffff;
+    border-radius: 10;
+    padding: 20;
+
+    .title {
+        color: #2c3e50;
+        font-size: 20;
+        font-weight: bold;
+        margin-bottom: 15;
+    }
+
+    .message {
+        color: #34495e;
+        font-size: 16;
+        margin-bottom: 20;
+    }
+
+    .btn {
+        border-radius: 8;
+        font-weight: bold;
+        padding: 12 20;
+        margin: 5;
+
+        &.btn-primary {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        &.btn-secondary {
+            background-color: #95a5a6;
+            color: #ffffff;
+        }
+    }
 }
 </style>

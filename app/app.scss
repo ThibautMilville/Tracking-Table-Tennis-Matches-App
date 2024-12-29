@@ -1,43 +1,69 @@
-@import '@nativescript/theme/core';
-@import '@nativescript/theme/default';
-
-// Global styles
-Page {
-    background-color: #f8f9fa;
+// Ajout des styles globaux pour les dialogues modernes
+.modern-dialog {
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    border-radius: 16;
+    box-shadow: 0 4 15 rgba(0, 0, 0, 0.1);
+    padding: 24;
+    
+    .title {
+        color: #2c3e50;
+        font-size: 24;
+        font-weight: bold;
+        margin-bottom: 16;
+        text-align: center;
+    }
+    
+    .message {
+        color: #34495e;
+        font-size: 18;
+        margin: 16 0;
+        text-align: center;
+        line-height: 1.4;
+    }
+    
+    .btn {
+        margin: 8;
+        padding: 16;
+        border-radius: 12;
+        font-size: 16;
+        font-weight: 600;
+        transform: scale(1);
+        animation: buttonPop 0.3s ease-out;
+        
+        &-primary {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: #ffffff;
+            
+            &:pressed {
+                background: linear-gradient(145deg, #2980b9, #2472a4);
+                transform: scale(0.98);
+            }
+        }
+        
+        &-secondary {
+            background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+            color: #ffffff;
+            
+            &:pressed {
+                background: linear-gradient(145deg, #7f8c8d, #6b7677);
+                transform: scale(0.98);
+            }
+        }
+    }
 }
 
-ActionBar {
-    background-color: #007bff;
-    color: white;
+@keyframes buttonPop {
+    0% { transform: scale(0.95); opacity: 0; }
+    70% { transform: scale(1.03); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-.fas {
-    font-family: 'Font Awesome 5 Free', 'fa-solid-900';
-    font-weight: 900;
-}
-
-// Animations
-.fade {
-    animation-name: fadeIn;
-    animation-duration: 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-// Common components styling
-.btn {
-    border-radius: 8;
-    font-weight: bold;
-    font-size: 16;
-    padding: 12;
-}
-
-.card {
-    background-color: white;
-    border-radius: 10;
-    margin: 10;
-    padding: 15;
+.new-game-dialog {
+    .title {
+        color: #2c3e50;
+    }
+    
+    .message {
+        color: #34495e;
+    }
 }

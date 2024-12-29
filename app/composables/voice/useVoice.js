@@ -1,19 +1,33 @@
 import { useSpeech } from './useSpeech';
 import { useVoiceRecognition } from './useVoiceRecognition';
 import { findPlayerInCommand } from './useVoiceUtils';
+import { createScoreAnnouncement } from './useVoiceAnnouncement';
 import { logger } from './useLogger';
 import { alert } from '@nativescript/core';
 
-export const useVoice = ({ player1Name, player2Name, addPoint, currentServer }) => {
+export const useVoice = ({ player1Name, player2Name, addPoint, currentServer, score }) => {
     const { speak } = useSpeech();
     
-    const announceServer = async () => {
-        const serverName = currentServer.value === 1 ? player1Name.value : player2Name.value;
-        await speak(`Service à ${serverName}`);
+    const announceScore = async () => {
+        try {
+            const p1Name = player1Name.value;
+            const p2Name = player2Name.value;
+            const currentScore = score.value;
+            const server = currentServer.value;
+
+            const scoreAnnounce = createScoreAnnouncement(currentScore, p1Name, p2Name);
+            
+            const serverName = server === 1 ? p1Name : p2Name;
+            const fullAnnouncement = `${scoreAnnounce}, Service à ${serverName}`;
+
+            await speak(fullAnnouncement);
+        } catch (error) {
+            logger.error('Erreur lors de l\'annonce:', error);
+        }
     };
     
     const processVoiceCommand = async (result) => {
-        if (!result?.text || !result.finished) return;
+        if (!result?.text) return;
 
         const command = result.text.toLowerCase();
         logger.info(`Commande reçue: ${command}`);
@@ -27,8 +41,7 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer }) 
 
             if (playerNumber) {
                 addPoint(playerNumber);
-                await speak(`Point pour ${playerNumber === 1 ? player1Name.value : player2Name.value}`);
-                await announceServer();
+                await announceScore();
             } else {
                 await speak('Joueur non reconnu');
             }
@@ -56,6 +69,7 @@ export const useVoice = ({ player1Name, player2Name, addPoint, currentServer }) 
 
     return {
         isListening,
-        toggleVoiceRecognition
+        toggleVoiceRecognition,
+        announceScore
     };
 };

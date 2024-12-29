@@ -63,12 +63,18 @@ export default {
             currentServer: 1,
             setsHistory: [],
             lastPoints: [],
-            voiceControl: null
+            voiceControl: null,
+            serverRef: Vue.observable({ value: 1 })
         };
     },
     computed: {
         isVoiceListening() {
             return this.voiceControl?.isListening?.value || false;
+        }
+    },
+    watch: {
+        currentServer(newValue) {
+            this.serverRef.value = newValue;
         }
     },
     methods: {
@@ -79,7 +85,8 @@ export default {
                     player1Name: Vue.observable({ value: this.player1Name }),
                     player2Name: Vue.observable({ value: this.player2Name }),
                     addPoint: this.addPoint,
-                    currentServer: Vue.observable({ value: this.currentServer })
+                    currentServer: Vue.observable({ value: this.currentServer }),
+                    score: Vue.observable({ value: this.score }) // Ajout du score
                 });
                 console.log('Contrôle vocal initialisé');
             } catch (error) {
@@ -134,6 +141,11 @@ export default {
             }
 
             this.updateService();
+            
+            if (this.voiceControl) {
+                this.voiceControl.announceScore();
+            }
+
             if (this.checkSetWinner()) {
                 this.newSet();
             }

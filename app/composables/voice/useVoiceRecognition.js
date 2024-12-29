@@ -2,8 +2,8 @@ import Vue from 'nativescript-vue';
 import { SpeechRecognition } from 'nativescript-speech-recognition';
 import { logger } from './useLogger';
 
-const RESTART_DELAY = 1000;
-const MAX_RECOGNITION_TIME = 10000;
+const RESTART_DELAY = 500;
+const MAX_RECOGNITION_TIME = 5000;
 
 export const useVoiceRecognition = (onCommand) => {
     const speechRecognition = new SpeechRecognition();
@@ -26,21 +26,26 @@ export const useVoiceRecognition = (onCommand) => {
             recognitionInstance = await speechRecognition.startListening({
                 locale: "fr-FR",
                 onResult: async (result) => {
-                    try {
-                        await onCommand(result);
-                    } finally {
-                        if (shouldContinueListening && result.finished) {
-                            await restartListening();
+                    if (result.finished) {
+                        try {
+                            await onCommand(result);
+                        } catch (error) {
+                            logger.error('Erreur lors du traitement de la commande:', error);
+                        }
+                        if (shouldContinueListening) {
+                            setTimeout(() => restartListening(), 100);
                         }
                     }
                 },
-                returnPartialResults: true
+                returnPartialResults: false
             });
 
             isListening.value = true;
 
             recognitionTimer = setTimeout(() => {
-                restartListening();
+                if (shouldContinueListening) {
+                    restartListening();
+                }
             }, MAX_RECOGNITION_TIME);
 
         } catch (error) {

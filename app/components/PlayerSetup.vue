@@ -29,8 +29,8 @@
   export default {
       data() {
           return {
-              p1Name: 'Thibaut',
-              p2Name: 'Pierre'
+              p1Name: '',
+              p2Name: ''
           };
       },
       methods: {

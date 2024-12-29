@@ -132,12 +132,17 @@ export default {
                 });
             }
         },
-        startMatch({ p1Name, p2Name }) {
+        async startMatch({ p1Name, p2Name }) {
             this.player1Name = p1Name;
             this.player2Name = p2Name;
             this.matchStarted = true;
             this.resetScore();
             this.initVoiceControl();
+            
+            if (this.voiceControl) {
+                await this.$nextTick();
+                await this.voiceControl.announceScore();
+            }
         },
         async addPoint(player) {
             if (this.matchFinished) return;

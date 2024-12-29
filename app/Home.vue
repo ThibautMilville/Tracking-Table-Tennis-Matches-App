@@ -35,7 +35,8 @@
 </template>
 
 <script>
-import { ref } from 'nativescript-vue';
+import Vue from 'nativescript-vue';
+import { alert } from '@nativescript/core';
 import PlayerSetup from './components/PlayerSetup';
 import ScoreBoard from './components/ScoreBoard';
 import MatchControls from './components/MatchControls';
@@ -72,16 +73,45 @@ export default {
     },
     methods: {
         initVoiceControl() {
-            this.voiceControl = useVoice({
-                player1Name: ref(this.player1Name),
-                player2Name: ref(this.player2Name),
-                addPoint: this.addPoint,
-                currentServer: ref(this.currentServer)
-            });
+            console.log('Initialisation du contrôle vocal');
+            try {
+                this.voiceControl = useVoice({
+                    player1Name: Vue.observable({ value: this.player1Name }),
+                    player2Name: Vue.observable({ value: this.player2Name }),
+                    addPoint: this.addPoint,
+                    currentServer: Vue.observable({ value: this.currentServer })
+                });
+                console.log('Contrôle vocal initialisé');
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation du contrôle vocal:', error);
+                alert({
+                    title: "Erreur d'initialisation",
+                    message: "Impossible d'initialiser le contrôle vocal: " + error.message,
+                    okButtonText: "OK"
+                });
+            }
         },
-        toggleVoiceControl() {
-            if (this.voiceControl) {
-                this.voiceControl.toggleVoiceRecognition();
+        async toggleVoiceControl() {
+            console.log('Toggle voice control appelé');
+            try {
+                if (this.voiceControl) {
+                    await this.voiceControl.toggleVoiceRecognition();
+                    console.log('État après toggle:', this.isVoiceListening);
+                } else {
+                    console.error('voiceControl non initialisé');
+                    alert({
+                        title: "Erreur",
+                        message: "Le contrôle vocal n'est pas initialisé",
+                        okButtonText: "OK"
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du toggle:', error);
+                alert({
+                    title: "Erreur",
+                    message: "Erreur lors de l'activation/désactivation: " + error.message,
+                    okButtonText: "OK"
+                });
             }
         },
         startMatch({ p1Name, p2Name }) {

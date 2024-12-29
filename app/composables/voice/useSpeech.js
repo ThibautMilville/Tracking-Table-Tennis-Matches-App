@@ -1,18 +1,28 @@
-import { TextToSpeech } from 'nativescript-texttospeech';
+import { TNSTextToSpeech } from 'nativescript-texttospeech';
+import { alert } from '@nativescript/core';
 
 export const useSpeech = () => {
-    const tts = new TextToSpeech();
+    const tts = new TNSTextToSpeech();
     
     const speak = async (text) => {
         try {
-            await tts.speak({
+            console.log('Tentative de synthèse vocale:', text);
+            const options = {
                 text,
-                language: 'fr-FR',
-                pitch: 1,
-                speakRate: 1
-            });
+                locale: 'fr-FR',
+                pitch: 1.0,
+                speakRate: 1.0
+            };
+            
+            await tts.speak(options);
+            console.log('Synthèse vocale réussie');
         } catch (error) {
             console.error('Erreur TTS:', error);
+            alert({
+                title: "Erreur de synthèse vocale",
+                message: error.message,
+                okButtonText: "OK"
+            });
         }
     };
 

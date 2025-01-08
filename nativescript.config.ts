@@ -1,7 +1,7 @@
 import { NativeScriptConfig } from '@nativescript/core';
 
 export default {
-  id: 'org.nativescript.myapp',
+  id: 'com.pingpong.score',
   appPath: 'app',
   appResourcesPath: 'App_Resources',
   android: {

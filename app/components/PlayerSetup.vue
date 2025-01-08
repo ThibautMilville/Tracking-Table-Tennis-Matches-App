@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { TextField, Frame } from '@nativescript/core';
+import { TextField } from '@nativescript/core';
 
 export default {
     data() {
@@ -57,23 +57,6 @@ export default {
             this.$emit('start-match', {
                 p1Name: this.p1Name.trim(),
                 p2Name: this.p2Name.trim()
-            });
-
-            this.navigateToGame();
-        },
-        navigateToGame() {
-            const frame = Frame.topmost();
-            frame.navigate({
-                moduleName: "components/GameComponent",
-                context: {
-                    p1Name: this.p1Name.trim(),
-                    p2Name: this.p2Name.trim()
-                },
-                transition: {
-                    name: "slide",
-                    duration: 200,
-                    curve: "ease"
-                }
             });
         }
     }

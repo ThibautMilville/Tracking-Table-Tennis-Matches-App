@@ -6,6 +6,7 @@
   "dependencies": {
     "@nativescript/core": "~8.8.0",
     "@nativescript/theme": "^3.1.0",
+    "ajv": "^8.12.0",
     "nativescript-speech-recognition": "^2.0.0",
     "nativescript-texttospeech": "^3.0.1",
     "nativescript-vue": "~2.9.3"
@@ -16,6 +17,7 @@
     "@nativescript/webpack": "~5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
+    "ajv-keywords": "^5.1.0",
     "eslint": "^8.0.0",
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-native": "^4.1.0",

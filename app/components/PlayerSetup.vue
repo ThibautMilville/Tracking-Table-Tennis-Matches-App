@@ -24,8 +24,7 @@
 </template>
 
 <script>
-import { TextField } from '@nativescript/core';
-import { navigateTo } from '@nativescript/core/ui/frame';
+import { TextField, Frame } from '@nativescript/core';
 
 export default {
     data() {
@@ -63,7 +62,8 @@ export default {
             this.navigateToGame();
         },
         navigateToGame() {
-            navigateTo({
+            const frame = Frame.topmost();
+            frame.navigate({
                 moduleName: "components/GameComponent",
                 context: {
                     p1Name: this.p1Name.trim(),
